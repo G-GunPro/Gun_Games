@@ -1,1 +1,48 @@
+Player
 
+플레이어 조작, 이동, 전투, 스탯 등 게임 플레이에 직접 관여하는 스크립트 폴더입니다.
+
+📌 포함 스크립트
+PlayerMotor.cs
+
+이동, 중력, 대쉬, 점프 처리
+공격 중 이동 제한 / 피격 중 Lock 기능
+CameraFollow의 방향을 기준으로 이동 벡터 계산
+HUD와 스태미나 실시간 연동
+
+PlayerController.cs
+
+PhotonView.isMine 체크
+입력 분기 / 네트워크 이동 처리
+애니메이션 상태 업데이트
+
+PlayerAttack.cs
+
+공격 입력 처리
+애니메이션 트리거
+데미지 RPC 전파
+
+PlayerHealth.cs
+
+HP 기반 사망 처리
+부활 RPC
+관전 모드로 진입 시점 제어
+
+PlayerStats.cs
+
+기본 스탯 + 정수(Essence) 반영
+팀 버프 적용
+PerksManager와 상호작용하여 즉시 재계산
+
+CameraFollow.cs
+
+로컬 플레이어 자동 추적
+마우스 입력 기반 카메라 회전
+UI 열림/닫힘에 따른 입력 제한
+Spectator 모드 대상 자동 교체
+
+🔧 설계 특징
+
+입력/이동/전투/스탯 구조 분리
+RootMotion 강제 비활성화로 멀티플레이 이동 일관성 확보
+Photon을 통한 네트워크 이동 처리 구조로 지연 최소화

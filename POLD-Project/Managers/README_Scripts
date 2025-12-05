@@ -1,1 +1,59 @@
+Managers
 
+게임 전체를 제어하는 핵심 시스템들이 위치한 폴더입니다.
+각 매니저는 IGameSystem 인터페이스를 기반으로 동일한 생명주기(Init / UpdateSystem / ReleaseSystem)를 가지며
+GameManager가 중앙에서 관리합니다.
+
+📌 포함 스크립트
+GameManager.cs
+
+모든 시스템 초기화·업데이트·해제 담당
+게임 클리어/오버 RPC 처리
+전체 게임 라이프사이클의 중심 역할
+
+StageManager.cs
+
+웨이브 기반 전투 흐름 관리
+WaveStart → Enemy Spawn → 전멸 체크 → 보상 지급 → 투표 → 다음 웨이브
+BGM 전환 및 연출 UI 처리
+
+EnemyManager.cs
+
+플레이어 수 기반 적 수 자동 조절
+웨이브 난이도 20% 증가 공식 적용
+보스 스폰 및 추적, Boss HP HUD 연동
+ActiveEnemyCount 관리하여 웨이브 종료 판단
+
+WallManager.cs
+
+팀 방어벽 HP 관리
+데미지/수복 처리 및 RPC 동기화
+벽 파괴 시 GameOver 자동 호출
+팀 특전(강화) 적용 시 MaxHP 증가
+
+TeamResourceManager.cs
+
+팀 재화 + 개인 재화 동시 관리
+웨이브 클리어 보상 지급
+RPC를 통한 개인 재화 동기화
+상점 비용 차감 처리
+
+PerksManager.cs
+
+팀 특전(ReviveAll / Buff / WallEnforce) 처리
+개인 정수(Essence) 선택 및 PlayerStats 반영
+스탯 재계산 및 UI 반영
+
+PerksVoteManager.cs
+
+웨이브 종료 시 팀 특전 투표 시스템
+MasterClient에서 집계, 최다득표 특전 실행
+투표 결과 UI 반영
+시간 제한 타이머 운영
+
+🔧 설계 특징
+
+모듈 단위 분리로 유지보수 및 확장 용이
+GameManager가 전체 시스템을 제어하는 Manager Pattern 적용
+네트워크 요소(Photon RPC)와 게임 로직이 명확히 분리됨
+UI, 전투, 웨이브, 스폰 관리가 독립적으로 동작

@@ -1,1 +1,22 @@
+Enemy
 
+적 AI, 상태, 코어 로직을 처리하는 폴더입니다.
+
+📌 포함 스크립트
+EnemyController.cs
+
+이동 AI
+타겟 선정(EnemyManager를 통한 가장 가까운 플레이어 탐색)
+데미지 처리 및 사망 판정
+
+EnemyCore.cs
+
+체력 관리
+보스 여부 체크
+Boss HP HUD 연동
+
+🔧 설계 특징
+
+EnemyManager와 분리하여 스폰·AI·코어가 모듈화
+OverlapSphere로 스폰 지점 간섭 방지
+Boss만 별도 UI(HUDController)와 연동

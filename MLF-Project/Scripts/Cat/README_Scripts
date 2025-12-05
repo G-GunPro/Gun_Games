@@ -1,0 +1,35 @@
+CatCtrl.cs
+
+고양이 AI의 중앙 컨트롤러이자 상태머신(State Machine)의 핵심 클래스.
+
+역할
+
+현재 상태(ICatState)를 보유하고 관리
+상태 전환(ChangeState) 처리
+NavMeshAgent로 이동 제어
+스탯 감소(Decay) 호출
+애니메이션 제어
+먹기/자기/배변 등 모든 행위의 시작점
+
+CatStats.cs
+
+고양이의 7가지 상태값을 관리하는 클래스.
+
+스탯 목록
+
+trust
+fullness
+bowel
+cleanliness
+happiness
+energy
+health
+
+핵심 로직
+
+모든 스탯은 실시간으로 감소 또는 증가
+각 스탯 간 연관 효과 존재(청결도·포만감이 낮으면 행복도 감소)
+
+CatAnimation.cs
+
+NavMeshAgent 이동 속도에 따라 isWalking 애니메이션 자동 전환.

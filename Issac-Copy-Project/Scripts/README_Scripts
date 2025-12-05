@@ -1,1 +1,116 @@
+1. Collision System (충돌 시스템)
 
+Collider.h / Collider.cpp
+ColliderManager.h
+
+핵심 기능
+1) 오브젝트 충돌 박스 관리 (Collider)
+RECT 기반 충돌 박스를 생성
+디버그 모드에서 시각화(BoxSow)
+정적 충돌 판정 함수 제공
+
+2) 게임 월드 충돌 처리 (ColliderManager)
+벽(지형) 충돌 박스 벡터 관리
+모든 Collider 객체 업데이트 및 Draw
+디버그 모드를 토글하여 충돌 박스 표시
+플레이어 이동 시 충돌 여부 검사에 사용됨
+
+2. Door System (문 시스템)
+
+Door.h / Door.cpp
+DoorManager.h / DoorManager.cpp
+
+핵심 기능
+1) 문 렌더링 및 상태 관리
+문은 열림/닫힘 상태를 가지며 방향(DoorDirection) 별 스프라이트 표시
+문이 열려 있을 때만 플레이어가 통과 가능
+
+2) 문 자동 제어 (DoorManager)
+현재 방의 연결 상태에 따라 문 생성
+방 클리어 여부에 따라 문 자동 오픈/클로즈
+플레이어가 충돌하면 다음 Room으로 이동하는 방향 반환
+
+3. Room System (랜덤 룸 생성 & 관리)
+
+Room.h / Room.cpp
+
+핵심 기능
+1) 랜덤 맵 생성 알고리즘
+시작 방을 기준으로 BFS 방식 확장
+인접 방 2개 이상이면 생성 방지 → 구조 안정화
+Dead-End(막다른 길) 자동 탐색
+Dead-End 3곳에 보스/아이템/열쇠방 자동 배치
+
+2) 방 상태 로직
+각 RoomInfo는 다음 정보를 가짐:
+roomType
+monsterType
+cleared 여부
+isVisited
+roomObstacle(장애물 상태 저장)
+
+3) 문 생성
+현재 방의 adjacent 배열을 기반으로 문 자동 생성
+
+4) 방 이동 처리
+플레이어가 문을 통과하면 MoveToDirection 호출
+이동한 방의 상태(몬스터/장애물/아이템) 로딩
+
+4. Player System (Isaac)
+
+Isaac.h / Isaac.cpp
+
+핵심 기능
+1) 이동 & 충돌 처리
+이동 입력값을 pos에 적용
+충돌 발생 시 이전 위치(prevPos)로 복구
+10ms 단위로 충돌 연산 실행 (Tick 관리)
+
+2) 공격 & 눈물(tear) 애니메이션 처리
+방향별 head/tearHead sprites
+isAttacking 시 눈 깜빡임 처리(blinkState)
+
+3) 넉백(knockback) 처리
+backLen 감소시키며 자연스럽게 밀려나는 효과 구현
+
+4) 데미지/무적/사망 시스템
+hp 감소 시 무적 시간 1초
+hp <= 0 → 사망 스프라이트 출력
+
+5. Obstacle System (장애물 & Poop & Chest)
+
+Obstacle.h / Obstacle.cpp
+PoopObstacle.h
+Chest.h
+
+핵심 기능
+1) 방마다 다른 장애물 패턴
+Room에서 monsterType에 따라 자동 배치
+
+2) PoopObstacle (파괴형 장애물)
+5단계 이미지
+tear 충돌 시 단계 증가
+마지막 단계에서 충돌 판정 제거
+
+3) Chest (보물상자)
+플레이어가 열쇠 보유 시 자동 Open
+열리면 아이템 드롭 가능
+
+8. Sound System (FMOD)
+
+FmodSound.h / FmodSound.cpp
+
+핵심 기능
+✔ 효과음 / BGM 분리
+✔ VolumeUp / VolumeDown
+✔ 사운드 캐싱(map)
+✔ door / attack / hurt / pick 등 모든 상황별 사운드 제공
+
+9. Database System (MySQL)
+
+Mysql.h / Mysql.cpp
+
+주요 기능
+로그인 정보 insert 테스트
+DB 연결/상태 UI 출력
+저장 쿼리 생성 및 실행 준비 구조

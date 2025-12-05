@@ -1,1 +1,27 @@
+Skill System
 
+스킬 발동, 이펙트 생성, 스킬 데이터 구조를 관리하는 폴더입니다.
+
+📌 포함 스크립트
+SkillCaster.cs
+
+스킬 발동 트리거
+RPC로 모든 클라이언트에 스킬 시각 효과 생성
+
+SkillEffectData.cs
+
+ScriptableObject 기반 스킬 데이터
+스폰 타입(Bone, Ground, SelfCenter, Projectile 등)
+지속시간, 사운드, 힐 옵션 포함
+
+SkillEffectSpawner.cs
+
+다양한 스폰 케이스 처리
+힐 스킬 → MasterClient에서 Tick 단위 회복
+양손 버프 스킬 시 공격력 증가 처리
+
+🔧 설계 특징
+
+확장 가능한 스킬 타입 구조
+데이터 기반 스킬 처리 → 캐릭터별 스킬 커스터마이징 용이
+비주얼 이펙트 처리와 전투 로직 분리

@@ -1,1 +1,81 @@
-VR 고양이 키우기 시뮬레이션 4인 팀 프로젝트
+📌 My Little Family – Cat AI System
+
+📖 프로젝트 소개
+
+고양이가 주변 환경과 플레이어 상호작용에 반응하여 자율적으로 행동하는 AI 시스템을 구현했습니다.
+상태머신(State Pattern)을 기반으로 하며, 스탯 변화에 따라 자연스럽게 행동이 전환됩니다.
+
+🧩 핵심 기능 개요
+
+1. 상태머신 기반 Cat AI
+고양이는 다음 상태들을 오가며 행동합니다.
+
+Idle, Eat, Snack, Pet, Play, Sleep, Bowel
+
+각 상태는 ICatState 인터페이스 기반으로 구성되어 있어 확장성과 유지보수성이 높습니다.
+================================================================
+public interface ICatState
+{
+    void Enter(CatCtrl cat);
+    void Update(CatCtrl cat);
+    void Exit(CatCtrl cat);
+}
+================================================================
+
+2. 자율 행동 전환 로직
+Idle 상태에서 고양이는 스탯 조건에 따라 스스로 적절한 행동을 선택합니다.
+================================================================
+if (cat.stats.fullness < 30f && cat.bowl.HasFood)
+    cat.ChangeState(new EatState());
+else if (cat.stats.energy < 30f)
+    cat.ChangeState(new SleepState());
+else if (cat.stats.bowel >= 100f)
+    cat.ChangeState(new BowelState(cat.poopPrefab));
+================================================================
+
+3. 실시간 스탯 변화 시스템
+신뢰도, 포만감, 배변욕구, 청결도, 행복도, 에너지, 건강 총 7가지 스탯을 관리합니다.
+스탯은 시간 경과, 행동, 환경 등에 따라 변화합니다.
+================================================================
+public void Decay(float deltaTime)
+{
+    AddFullness(-0.1f * deltaTime);
+    AddEnergy(-0.1f * deltaTime);
+    AddBowel(0.1f * deltaTime);
+}
+================================================================
+
+4. NavMesh 기반 이동 및 애니메이션 연동
+NavMeshAgent로 목적지 이동
+도착 여부 체크 후 행동 전환
+이동 여부에 따라 isWalking 애니메이션 제어
+
+================================================================
+if (agent.velocity.magnitude > 0.1f)
+    animator.SetBool("isWalking", true);
+else
+    animator.SetBool("isWalking", false);
+================================================================
+
+🎮 개발 기술 스택
+
+Unity (C#)
+State Pattern 기반 AI 설계
+NavMeshAgent 이동 시스템
+코루틴 기반 행동 지속 처리
+이벤트 기반 환경 상호작용
+애니메이션 상태 연동
+
+🔥 구현 목표
+
+자연스럽고 생동감 있는 AI 구현
+시스템 확장이 쉬운 모듈형 설계
+스탯과 행동이 유기적으로 연결된 구조 구축
+
+📌 향후 확장 계획
+
+감정 UI 연동(행복도/에너지 아이콘 표시)
+랜덤 이벤트(달리기, 숨기 등) 추가
+스킨/퍼스널리티(성격) 시스템 추가
+고양이 간 상호작용(여러 마리 플레이)
+

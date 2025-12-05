@@ -1,1 +1,175 @@
-4인 창작 프로젝트
+📌 Paradi Outbreak: Last Defense
+
+멀티플레이 웨이브 디펜스 게임
+(Photon PUN Classic · Unity C#)
+
+📖 프로젝트 소개
+
+Unity + Photon(PUN Classic) 기반으로 제작한 8인 협동 웨이브 디펜스 액션 게임입니다.
+적 스폰, 벽 방어, 팀/개인 특전, 스킬 시스템, 관전 모드, UI/게임 흐름 제어까지
+멀티플레이 게임 전체 구조를 직접 설계해 구현했습니다.
+
+특히 웨이브 진행 구조, 네트워크 동기화 기반 전투 시스템,
+투표형 특전 시스템, 모듈형 Manager 아키텍처, Skill·Stat 시스템,
+BGM 흐름 제어, 관전 모드 등 확장성과 구조적 설계를 가장 우선에 두었습니다.
+
+🧩 핵심 기능 개요
+
+1. 모듈형 게임 시스템 구조 (IGameSystem 기반)
+
+모든 시스템(Enemy, Wall, UI, Perks, Resource 등)은 IGameSystem 인터페이스를 구현하여
+Init() / UpdateSystem() / ReleaseSystem() 형태로 GameManager가 통합 제어합니다.
+
+IGameSystem 구조
+================================================================
+void Init();
+void UpdateSystem();
+void ReleaseSystem();
+================================================================
+
+모든 시스템이 동일한 생명주기를 가져 유지보수 용이
+GameManager가 일괄 초기화/해제 → 씬 전환 안정성 확보
+기능 추가 시 Manager 단위로 모듈 확장 가능
+
+2. 웨이브 기반 전투 시스템(StageManager)
+
+StageManager는 웨이브 시작 → 적 스폰 → 전멸 체크 → 보상·투표 → 다음 웨이브
+전체 루프를 관리하는 핵심 흐름 제어 시스템입니다.
+
+웨이브 순서
+
+WaveStart RPC → 연출 UI + BGM 변경
+EnemyManager.SpawnWaveEnemies(wave)
+ActiveEnemyCount == 0 → WaveClear
+팀/개인 보상 지급
+특전 투표 시작
+플레이어 준비 완료 후 다음 웨이브 시작
+
+3. EnemyManager – 적 스폰 및 보스 로직
+
+플레이어 수에 따라 적 수가 자동 증가하고, 웨이브마다 난이도가 20%씩 상승합니다.
+
+적 수 계산
+================================================================
+int baseCount = 12 + playerCount;
+float bonus = playerCount * 0.10f;
+int finalCount = baseCount * (1 + (wave-1)*0.20f);
+================================================================
+
+플레이어 수 기반 적 수 자동 조절
+웨이브마다 등장하는 보스 자동 스폰
+ActiveEnemyCount 기반 웨이브 종료 판단
+OverlapSphere로 스폰 중첩 방지
+HUD에 Boss HP 실시간 표시
+
+4. WallManager – 팀 기반 방어벽 시스템
+
+모든 플레이어가 함께 지켜야 하는 방어 목표물입니다.
+
+최대 HP / 현재 HP 관리
+벽 파괴 → GameOver 즉시 처리
+팀 특전(벽 강화) 적용 시 MaxHP 증가 RPC
+HUD 실시간 반영
+
+5. TeamResourceManager – 팀·개인 재화 시스템
+
+웨이브 클리어 시 팀 전체 + 각 플레이어에게 코인을 지급합니다.
+
+개인 재화는 플레이어 닉네임 Key로 Dictionary 관리
+RPC_SyncPersonalResource로 동기화
+상점에서 팀/개인 비용 각각 차감 가능
+
+6. PerksVoteManager – 실시간 팀 특전 투표 시스템
+
+각 웨이브 종료 시 모든 플레이어가 3개의 팀 특전 중 하나를 투표합니다.
+
+투표 흐름
+
+투표 UI 표시
+플레이어가 선택 시 MasterClient로 RPC 전송
+MasterClient가 표 수 집계
+시간이 끝나면 최다득표 특전 적용
+개인 특전 선택 UI 등장
+
+특전 종류
+
+ReviveAll (전원 부활)
+TeamStatBuff (능력 10% 상승)
+WallEnforce (벽 강화)
+
+7. Personal Perks – 정수(Essence) 기반 능력 성장
+
+각 웨이브마다 플레이어는 3종의 랜덤 정수 중 하나를 선택합니다.
+
+중복 선택 방지
+최대 4슬롯
+Essence → ItemData 매핑
+PlayerStats 재계산
+
+8. PlayerMotor – 이동/대쉬/중력/피격 시스템
+
+플레이어 조작의 핵심 로직입니다.
+
+CameraFollow 기준 방향 이동
+Dash(스태미나 기반)
+Jump & Gravity
+피격 시 이동 제한
+공격 중 이동 Lock
+HUD에 스태미나 실시간 반영
+
+9. Skill System – 스킬 발동 및 이펙트 처리
+
+각 캐릭터는 고유 스킬을 보유하며, 다음과 같은 다양한 형태를 지원합니다.
+
+Bone 기반(특정 본에서 이펙트 생성)
+양손 버프 스킬
+바닥·투사체·전방 이펙트
+3갈래 공격
+광역 힐(마스터가 Tick 기반으로 체력 회복 적용)
+================================================================
+SkillEffectSpawner.Instance.PlaySkill(skillData, this.transform);
+================================================================
+
+10. UIManager – 모든 UI 통합 제어
+
+HUD, 상점, 특전 UI, Wave UI, GameOver/GameClear 연출까지
+게임 내 모든 UI를 관리하는 통합 시스템입니다.
+
+UI 열림/닫힘 상태에 따라 HUD 자동 제어
+투표 UI / 개인 정수 UI 생성
+ESC 옵션창 + 로비 복귀 처리
+WaveStart/WaveClear/GameClear 연출
+
+11. Spectator Mode – 관전 시스템
+
+플레이어가 죽으면 자동으로 Spectator 모드 진입.
+
+생존 플레이어 리스트 자동 갱신
+PageUp/PageDown으로 관전 대상 순환
+CameraFollow.AttachTarget으로 카메라 전환
+
+🎮 개발 기술 스택
+
+Unity C#
+Photon PUN Classic
+Manager 기반 구조 설계
+ScriptableObject 기반 데이터 관리
+FSM 기반 스킬/전투 흐름
+UGUI 기반 UI 시스템
+모듈형 전투 & 스탯 시스템
+
+🔥 구현 목표
+
+멀티플레이 디펜스 게임 전체 구조 직접 설계
+유저 수 기반 난이도 조절이 가능한 웨이브 시스템 완성
+확장형 Team/Personal Perks 시스템 구축
+다양한 캐릭터 스킬의 데이터 기반 처리
+관전 모드·결과창·상점까지 포함한 전체 게임 흐름 완성
+
+📌 향후 확장 계획
+
+보스 패턴 다양화
+캐릭터별 Active/Passive 스킬 확장
+Matchmaking + 서버 선택 기능
+Perk 시너지 시스템
+게임 로그 기반 난이도 자동 보정

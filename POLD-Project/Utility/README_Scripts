@@ -1,1 +1,11 @@
+Utility
 
+게임 플레이를 보조하는 코드 모음입니다.
+
+📌 포함 스크립트
+SpectatorManager.cs
+
+사망 시 자동 관전 모드로 진입
+생존 플레이어 리스트 자동 갱신
+PageUp/PageDown으로 관전 대상 변경
+CameraFollow와 연계된 시점 전환

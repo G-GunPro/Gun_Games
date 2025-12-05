@@ -79,3 +79,4 @@ NavMeshAgent 이동 시스템
 스킨/퍼스널리티(성격) 시스템 추가
 고양이 간 상호작용(여러 마리 플레이)
 
+![Cat State Machine](./Images/cat_state_diagram.png)
